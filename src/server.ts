@@ -9,7 +9,7 @@ let server: Server;
 const port=5000;
 const main=async()=>{
 try {
-    await mongoose.connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.pqwog.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`);
+    await mongoose.connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.pqwog.mongodb.net/NoteApp?retryWrites=true&w=majority&appName=Cluster0`);
     
     console.log("connected to MongoDB with Mongoose")
     server=app.listen(port,()=>{
@@ -22,4 +22,3 @@ try {
 
 main()
 
-//mongodb+srv://<db_username>:<db_password>@cluster0.pqwog.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
