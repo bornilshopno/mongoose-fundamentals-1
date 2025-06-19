@@ -1,14 +1,34 @@
 import { model, Schema } from "mongoose";
 import { IUser } from "../interfaces/users.interface";
-
+import validator from 'validator';
 
 const userSchema = new Schema<IUser>({
-    firstName: { type: String, required: true },
-    lastName: { type: String, required: true },
-    email: { type: String, required: true, trim: true },
-    password: { type: String, required: true },
-    role: { type: String, enum: ['user', 'admin'], default: 'user' }
-})
+    firstName: { type: String, required: true, minlength: 2, maxlength: 10 },
+    lastName: { type: String, required: true, minlength: 2, maxlength: 10 },
+    age: { type: Number, min: [18,'age to be minimum 18, received {VALUE}'], max: 60, required:true },
+    email: { type: String, unique: [true, 'email is repeated'] , required: true, trim: true, lowercase:true,
+    //     validate:{
+    //     validator:function(v){
+    //       return  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
+    //     },
+    //     message:function(props){
+    //         return `email ${props.value} is not valid email`
 
-export const User= model("User", userSchema)
+    //     }
+    // } 
+    validate:[validator.isEmail, 'Invalid Email {VALUE}']
+
+},
+    password: { type: String, required: true },
+    role: { type: String, enum: {
+        values:['user', 'admin'],message:'Role must be user or admin but got {VALUE}'
+    }, default: 'user' },
+    
+},
+    {
+        versionKey: false,
+        timestamps: true
+    })
+
+export const User = model("User", userSchema)
 
