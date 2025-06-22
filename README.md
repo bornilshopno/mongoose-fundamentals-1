@@ -32,3 +32,23 @@ const Note= model("Note", noteSchema)
 
 
 ```
+
+## BUILT IN
+user.create ==static method
+user.save==instance method
+
+
+#### virtuals
+```
+ {
+        versionKey: false,
+        timestamps: true,
+        toJSON:{virtuals: true},
+        toObject:{virtuals: true}
+    }
+
+userSchema.virtual("fullName").get(function(){
+    return `${this.firstName} ${this.lastName}`
+})
+
+```

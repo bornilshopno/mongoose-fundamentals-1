@@ -28,7 +28,7 @@ notesRouter.post("/create-note", async (req,res)=>{
 
 notesRouter.get("/", async(req,res)=>{
     console.log("GET")
-    const notes=await Note.find();
+    const notes=await Note.find().populate("userId");
     res.status(200).send({
         success: true,
         message:"Notes Found Successfully",
