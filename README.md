@@ -1,3 +1,41 @@
+## MONGOOSE
+
+## Basic folder structures
+
+src/
+│
+├── models/
+│   └── user.model.ts
+│
+├── schemas/
+│   └── user.schema.ts
+│
+├── types/
+│   └── user.type.ts
+│
+└── routes/
+    └── user.routes.ts
+
+
+
+## MODELS
+
+A model is a *JavaScript class* that represents a MongoDB collection.
+
+It is built on top of a schema, which defines the structure and rules of the documents.
+
+Mongoose automatically creates a collection for each model (in plural, lowercase form by default).
+```ts
+const userSchema = new mongoose.Schema({ name: String });
+const User = mongoose.model("User", userSchema);
+
+// - Use PascalCase for model names. ie- User
+// -Mongoose will automatically map it to a lowercase, plural collection name in MongoDB.
+```
+✅ collection = physical storage (native MongoDB)
+
+✅ model = programmatic interface to a collection (Mongoose)
+
 
 ## SCHEMA
 

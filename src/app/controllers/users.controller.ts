@@ -62,7 +62,8 @@ usersRouter.get("/", async (req, res) => {
     //skipping
     // const users = await User.find().skip(5);
     // limiting
-    const users = await User.find().limit(5);
+    // const users = await User.find().limit(5);
+    const users = await User.find();
     res.status(200).send({
         success: true,
         message: "Users Found Successfully",
