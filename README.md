@@ -84,7 +84,7 @@ Don't use Mixed unless necessary — it disables strict validation.
 
 ## 📘 Mongoose Conventions & Best Practices
 
-```
+
 These are the conventions we follow for using **Mongoose** with **Node.js/TypeScript** to keep our code clean, consistent, and scalable.
 
 **One model per file:**  
@@ -135,7 +135,7 @@ Only use `Schema.Types.Mixed` for flexible data when you can't define a strict s
 **Use instance and static methods:**  
 Attach methods to `schema.methods` (for documents) or `schema.statics` (for the model itself).
 
-```
+
 
 
 
