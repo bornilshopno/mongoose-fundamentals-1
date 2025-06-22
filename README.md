@@ -1,7 +1,7 @@
 ## MONGOOSE
 
 ## Basic folder structures
-
+```
 src/
 │
 ├── models/
@@ -16,7 +16,7 @@ src/
 └── routes/
     └── user.routes.ts
 
-
+```
 
 ## MODELS
 
@@ -59,132 +59,69 @@ const userSchema = new Schema({
 });
 ```
 
-## Data Types
+## INSTANCE AND STATIC METHOD IN MONGOOSE
 
-| Mongoose Type | Description                     | Example                                                |
-| ------------- | ------------------------------- | ------------------------------------------------------ |
-| `String`      | Text values                     | `name: { type: String }`                               |
-| `Number`      | Numeric values                  | `age: { type: Number }`                                |
-| `Boolean`     | `true` or `false`               | `isActive: { type: Boolean }`                          |
-| `Date`        | Date and time                   | `createdAt: { type: Date }`                            |
-| `Array`       | A list of values                | `tags: { type: [String] }`                             |
-| `ObjectId`    | Reference to another document   | `userId: { type: Schema.Types.ObjectId, ref: "User" }` |
-| `Buffer`      | Binary data (e.g., image, file) | `file: { type: Buffer }`                               |
-| `Mixed`       | Any type (use with caution)     | `metadata: { type: Schema.Types.Mixed }`               |
-| `Map`         | Key-value pairs                 | `settings: { type: Map, of: String }`                  |
-| `Decimal128`  | High-precision numbers          | `price: { type: Schema.Types.Decimal128 }`             |
+- *Instance Method*
 
+An instance method works on a single document (like one user). You can access this to get the current user's values.Logic tied to one document (e.g. check password)
 
+called on => A document (const user = new User())
 
-Always use Schema.Types.ObjectId for references.
-
-Use Array types like [String] or [Schema.Types.ObjectId].
-
-Don't use Mixed unless necessary — it disables strict validation.
-
-## 📘 Mongoose Conventions & Best Practices
-
-
-These are the conventions we follow for using **Mongoose** with **Node.js/TypeScript** to keep our code clean, consistent, and scalable.
-
-**One model per file:**  
-Each model (e.g., `User`, `Note`, `Task`) should have its own file for better separation and organization.
-
-**Separate schema and model (optional but recommended):**  
-Define the schema in a `schemas/` folder and the model in a `models/` folder for large projects.
-
-**PascalCase for model names:**  
-Model names should use PascalCase, like `User`, `Note`, or `Product`.
-
-**camelCase for field names:**  
-Use camelCase for document field names like `firstName`, `userId`, or `createdAt`.
-
-**Pluralized collection names:**  
-Mongoose automatically pluralizes model names to form the collection name (`User` → `users`).
-
-**Use TypeScript interfaces:**  
-Define interfaces (`IUser`, `INote`, etc.) for strict typing, better intellisense, and maintainability.
-
-**Use schema-level validation:**  
-Define validations such as `required`, `min`, `max`, `enum`, and `validate` directly in the schema.
-
-**Enable timestamps:**  
-Add `{ timestamps: true }` in schema options to automatically create `createdAt` and `updatedAt`.
-
-**Disable version key if unused:**  
-Add `{ versionKey: false }` in schema options to remove the `__v` field from documents.
-
-**Use virtuals for computed fields:**  
-Add computed properties like `fullName` using `schema.virtual()`, which won't be stored in the DB.
-
-**Use pre/post middleware for logic:**  
-Apply `schema.pre()` and `schema.post()` hooks for logic like hashing passwords or cleanup after deletion.
-
-**Reference other models with ObjectId:**  
-Use `Schema.Types.ObjectId` with `ref: "ModelName"` to relate documents between collections.
-
-**Use default values:**  
-Add `default` to fields where applicable (e.g., `default: 'user'` for roles, `default: Date.now` for dates).
-
-**Use trim and lowercase for strings:**  
-Clean user input by setting `trim: true`, `lowercase: true` for string fields like email and names.
-
-**Avoid `Mixed` type unless necessary:**  
-Only use `Schema.Types.Mixed` for flexible data when you can't define a strict structure.
-
-**Use instance and static methods:**  
-Attach methods to `schema.methods` (for documents) or `schema.statics` (for the model itself).
-
-
-
-
-
-
-```js
-import { model, Schema } from "mongoose";
-
-const noteSchema= new Schema({
-    // title: String,
-     title:{type: String, required:true, trim: true},
-    content:{type:String, default:''},
-    category:{type: String,
-        enum:["Personal","Work","Study"],
-        default:"Personal",
-    },
-    pinned:{type:Boolean, default: false},
-    tags:{
-        label:{type:String, required: true},
-        color:{type:String, default:"Green"}
-    }
-})
-
-const Note= model("Note", noteSchema)
-
- //approach-1
-    const myNote=new Note({
-        title:"Learning express",
-        content: "first note",
-        tags:{label:"June"}
-    })
-    
-
-
-
-```
-
-## BUILT IN
-user.create ==static method
 user.save==instance method
 
+this refers to	The document (user)
 
-#### virtuals
+Use when you need logic tied to one user's data, e.g., password checking, full name formatting, etc.
+
+- *Static Method*
+
+A static method is called on the Model itself (not a single document). You use it for general utility, like searching, aggregations, or reusable helpers.General utility logic (e.g. hash, find users)
+
+called on => A model (User.hashPassword())
+
+user.create ==static method
+
+this refers to The model (User)
+
+Use when the function is not tied to one user instance—like creating password hash before saving or finding user by email.
+
+```ts
+// Instance method
+userSchema.method("generateHashedPassword", async function (password: string) {
+  return await bcrypt.hash(password, 10);
+});
+
+// Static method
+userSchema.static("hashPassword", async function (password: string) {
+  return await bcrypt.hash(password, 10);
+});
+
+// UseCase
+const user = new User({ ... });
+await user.generateHashedPassword("mypass"); // instance
+
+await User.hashPassword("mypass"); // static
+
 ```
+
+
+
+#### Virtuals
+
+Add computed properties like `fullName` using `schema.virtual()`, which won't be stored in the DB.
+
+But presents in the data. Avoids data redundency.
+```ts
+export const userSchema = new Schema({
+  firstName: { type: String, required: true, minlength: 2, maxlength: 10 },
+  lastName: { type: String, required: true, minlength: 2, maxlength: 10 },
  {
-        versionKey: false,
-        timestamps: true,
-        toJSON:{virtuals: true},
-        toObject:{virtuals: true}
-    }
+  versionKey: false,
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
+}
+});
 
 userSchema.virtual("fullName").get(function(){
     return `${this.firstName} ${this.lastName}`
@@ -287,3 +224,79 @@ userSchema.post("save", function (doc, next) {
 
 
 ```
+
+## Data Types
+
+| Mongoose Type | Description                     | Example                                                |
+| ------------- | ------------------------------- | ------------------------------------------------------ |
+| `String`      | Text values                     | `name: { type: String }`                               |
+| `Number`      | Numeric values                  | `age: { type: Number }`                                |
+| `Boolean`     | `true` or `false`               | `isActive: { type: Boolean }`                          |
+| `Date`        | Date and time                   | `createdAt: { type: Date }`                            |
+| `Array`       | A list of values                | `tags: { type: [String] }`                             |
+| `ObjectId`    | Reference to another document   | `userId: { type: Schema.Types.ObjectId, ref: "User" }` |
+| `Buffer`      | Binary data (e.g., image, file) | `file: { type: Buffer }`                               |
+| `Mixed`       | Any type (use with caution)     | `metadata: { type: Schema.Types.Mixed }`               |
+| `Map`         | Key-value pairs                 | `settings: { type: Map, of: String }`                  |
+| `Decimal128`  | High-precision numbers          | `price: { type: Schema.Types.Decimal128 }`             |
+
+
+
+Always use Schema.Types.ObjectId for references.
+
+Use Array types like [String] or [Schema.Types.ObjectId].
+
+Don't use Mixed unless necessary — it disables strict validation.
+
+## 📘 Mongoose Conventions & Best Practices
+
+
+These are the conventions we follow for using **Mongoose** with **Node.js/TypeScript** to keep our code clean, consistent, and scalable.
+
+**One model per file:**  
+Each model (e.g., `User`, `Note`, `Task`) should have its own file for better separation and organization.
+
+**Separate schema and model (optional but recommended):**  
+Define the schema in a `schemas/` folder and the model in a `models/` folder for large projects.
+
+**PascalCase for model names:**  
+Model names should use PascalCase, like `User`, `Note`, or `Product`.
+
+**camelCase for field names:**  
+Use camelCase for document field names like `firstName`, `userId`, or `createdAt`.
+
+**Pluralized collection names:**  
+Mongoose automatically pluralizes model names to form the collection name (`User` → `users`).
+
+**Use TypeScript interfaces:**  
+Define interfaces (`IUser`, `INote`, etc.) for strict typing, better intellisense, and maintainability.
+
+**Use schema-level validation:**  
+Define validations such as `required`, `min`, `max`, `enum`, and `validate` directly in the schema.
+
+**Enable timestamps:**  
+Add `{ timestamps: true }` in schema options to automatically create `createdAt` and `updatedAt`.
+
+**Disable version key if unused:**  
+Add `{ versionKey: false }` in schema options to remove the `__v` field from documents.
+
+**Use virtuals for computed fields:**  
+Add computed properties like `fullName` using `schema.virtual()`, which won't be stored in the DB.
+
+**Use pre/post middleware for logic:**  
+Apply `schema.pre()` and `schema.post()` hooks for logic like hashing passwords or cleanup after deletion.
+
+**Reference other models with ObjectId:**  
+Use `Schema.Types.ObjectId` with `ref: "ModelName"` to relate documents between collections.
+
+**Use default values:**  
+Add `default` to fields where applicable (e.g., `default: 'user'` for roles, `default: Date.now` for dates).
+
+**Use trim and lowercase for strings:**  
+Clean user input by setting `trim: true`, `lowercase: true` for string fields like email and names.
+
+**Avoid `Mixed` type unless necessary:**  
+Only use `Schema.Types.Mixed` for flexible data when you can't define a strict structure.
+
+**Use instance and static methods:**  
+Attach methods to `schema.methods` (for documents) or `schema.statics` (for the model itself).
